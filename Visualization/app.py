@@ -44,9 +44,9 @@ app.layout = html.Div(children=[
         html.H2("Análisis de dependencias de sintaxis"),
         html.Iframe(id='viz_dep', srcDoc='', height="500p", width="100%"),
         html.H2("Análisis de entidades"),
-        html.Iframe(id='viz_ent', srcDoc='', height="500p", width="100%"),
+        html.Iframe(id='viz_ent', srcDoc='', height="500p", width="50%"),
         html.H2('Resumen de texto (Algoritmo Textrank)'),
-        html.Iframe(id='viz_sum', srcDoc='', height="500p", width="100%")
+        html.Iframe(id='viz_sum', srcDoc='', height="500p", width="50%")
     ], style={'margin':'2%'})
 ])
 
@@ -71,7 +71,7 @@ def update_viz_dep(n_clicks, value):
     summary_1 =summarizer_text(parser.document,SENTENCES_COUNT)
     for sentence in summary_1:
     	resumen=resumen+ str(sentence)+'\n'
-    	
+
     return dep_viz, ent_viz, resumen
 
 if __name__ == '__main__':
