@@ -13,45 +13,46 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
-    html.H1(children='RideR'),
 
-    html.Div(children='''
-        RideR: Herramienta de Analisis de Texto.
-    '''),
+    html.Nav(children=[
+        html.H1(children='RideR'),
 
-    dcc.Textarea(
-        id="input-text",
-        placeholder='Enter a text...',
-        value='',
-        style={'width': '100%'}
-    ),
-    html.Button('Submit', id='button'),
+        html.P(children='''
+            Herramienta de Analisis de Texto.
+    ''')], style={'margin':'2%'}),
 
-    # TODO: Make width variable (related to sentence token count)
     html.Div(children=[
-        html.Iframe(id='viz_dep', srcDoc='', height="300p", width="750p"),
-        html.Iframe(id='viz_ent', srcDoc='', height="300p", width="750p")
-    ])
+        dcc.Textarea(
+            id="input-text",
+            placeholder='Ingresa el texto que deseas analizar...',
+            value='',
+            style={'width': '100%'}
+        ),
+        html.Button('Iniciar análisis', id='button', style={'width': '100%'})
+    ], style={'margin':'2%'}),
 
+    html.Div(children=[
+        html.H2("Análisis de dependencias de sintaxis"),
+        html.Iframe(id='viz_dep', srcDoc='', height="500p", width="100%"),
+        html.H2("Análisis de entidades"),
+        html.Iframe(id='viz_ent', srcDoc='', height="500p", width="100%")
+    ], style={'margin':'2%'})
 ])
 
 @app.callback(
-    dash.dependencies.Output('viz_dep', 'srcDoc'),
+    [dash.dependencies.Output('viz_dep', 'srcDoc'),
+     dash.dependencies.Output('viz_ent', 'srcDoc')],
     [dash.dependencies.Input('button', 'n_clicks')],
     [dash.dependencies.State('input-text', 'value')])
 def update_viz_dep(n_clicks, value):
-    if value != None:
-        doc = nlp(value)
-        return displacy.render([doc], style="dep", page=False)
+    if value is None:
+        raise dash.exceptions.PreventUpdate
 
-@app.callback(
-    dash.dependencies.Output('viz_ent', 'srcDoc'),
-    [dash.dependencies.Input('button', 'n_clicks')],
-    [dash.dependencies.State('input-text', 'value')])
-def update_viz_ent(n_clicks, value):
-    if value != None:
-        doc = nlp(value)
-        return displacy.render([doc], style="ent", page=False)
+    doc = nlp(value)
+    dep_viz = displacy.render([doc], style="dep", page=False)
+    ent_viz = displacy.render([doc], style="ent", page=False)
+
+    return dep_viz, ent_viz
 
 if __name__ == '__main__':
     app.run_server(debug=True)
