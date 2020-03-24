@@ -11,9 +11,23 @@ from sumy.utils import get_stop_words
 from sumy.summarizers.text_rank import TextRankSummarizer
 from sumy.nlp.stemmers import Stemmer
 LANGUAGE = "spanish"
-SENTENCES_COUNT = 10
+SENTENCES_COUNT = 3
 import pandas as pd
 import re
+df=pd.read_excel('Relatos_Benvenutto.xlsx')
+libro='Relatos_Benvenutto'
+cap=list(set(df['Capitulo'].tolist()))
+opto={}
+for j in cap:
+    nparrafos=df[df['Capitulo']==j].count()
+    nparrafos=nparrafos[0]
+    listaindi=[]
+    for i in range(nparrafos):
+        listaindi.append(str(i+1))
+    poke={j:listaindi}
+    opto.update(poke)
+names = list(opto.keys())
+nestedOptions = opto[names[0]]
 
 nlp = spacy.load("../Research/models1")
 
@@ -22,14 +36,20 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = html.Div(children=[
-
-    html.Nav(children=[
-        html.H1(children='RideR'),
-
-        html.P(children='''
-            Herramienta de Analisis de Texto.
-    ''')], style={'margin':'2%'}),
-
+    html.Div([
+        dcc.Dropdown(
+            id='name-dropdown',
+            options=[{'label':name, 'value':name} for name in names],
+            value = list(opto.keys())[0]
+            ),
+            ],style={'width': '20%', 'display': 'inline-block'}),
+    html.Div([
+        dcc.Dropdown(
+            id='opt-dropdown',
+            multi=True
+            ),
+            ],style={'width': '20%', 'display': 'inline-block'}
+        ),
     html.Div(children=[
         dcc.Textarea(
             id="input-text",
@@ -44,9 +64,9 @@ app.layout = html.Div(children=[
         html.H2("Análisis de dependencias de sintaxis"),
         html.Iframe(id='viz_dep', srcDoc='', height="500p", width="100%"),
         html.H2("Análisis de entidades"),
-        html.Iframe(id='viz_ent', srcDoc='', height="500p", width="50%"),
+        html.Iframe(id='viz_ent', srcDoc='', height="500p", width="100%"),
         html.H2('Resumen de texto (Algoritmo Textrank)'),
-        html.Iframe(id='viz_sum', srcDoc='', height="500p", width="50%")
+        html.Iframe(id='viz_sum', srcDoc='', height="500p", width="100%")
     ], style={'margin':'2%'})
 ])
 
@@ -55,7 +75,9 @@ app.layout = html.Div(children=[
      dash.dependencies.Output('viz_ent', 'srcDoc'),
      dash.dependencies.Output('viz_sum', 'srcDoc')],
     [dash.dependencies.Input('button', 'n_clicks')],
-    [dash.dependencies.State('input-text', 'value')])
+    [dash.dependencies.State('input-text', 'value')]
+    )
+
 def update_viz_dep(n_clicks, value):
     if value is None:
         raise dash.exceptions.PreventUpdate
@@ -71,8 +93,24 @@ def update_viz_dep(n_clicks, value):
     summary_1 =summarizer_text(parser.document,SENTENCES_COUNT)
     for sentence in summary_1:
     	resumen=resumen+ str(sentence)+'\n'
-
     return dep_viz, ent_viz, resumen
-
+@app.callback(
+    dash.dependencies.Output('opt-dropdown', 'options'),
+    [dash.dependencies.Input('name-dropdown', 'value')]
+    )
+def update_date_dropdown(name):
+    return [{'label': i, 'value': i} for i in opto[name]]
+@app.callback(
+    dash.dependencies.Output('input-text', 'value'),
+    [dash.dependencies.Input('opt-dropdown', 'value')],
+    [dash.dependencies.State('name-dropdown', 'value')]
+    )
+def updateTextarea(selected_value,name):
+    dfparte=df[df['Capitulo']==name]
+    dfparte=dfparte['Texto'].tolist()
+    temp=''
+    for i in selected_value:
+        temp=temp+'\n'+dfparte[int(i)-1]
+    return temp
 if __name__ == '__main__':
     app.run_server(debug=True)
