@@ -32,7 +32,7 @@ for j in cap:
 names = list(opto.keys())
 nestedOptions = opto[names[0]]
 
-nlp = spacy.load("../Research/models1")
+nlp = spacy.load("models1")
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
