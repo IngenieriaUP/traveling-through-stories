@@ -10,6 +10,7 @@ from sumy.utils import get_stop_words
 from sumy.summarizers.text_rank import TextRankSummarizer
 from sumy.nlp.stemmers import Stemmer
 from codsyntax import *
+import plotly.express as px
 HTML_WRAPPER = """<div style="overflow-x: auto; border: 1px solid #e6e9ef; border-radius: 0.25rem; padding: 1rem; margin-bottom: 2.5rem">{}</div>"""
 LANGUAGE = "spanish"
 SENTENCES_COUNT = 3
@@ -50,14 +51,14 @@ def load_model(name):
 
 @st.cache
 def entity_analyzer(my_text):
-	nlp = load_model('../Research/models1')
+	nlp = load_model('models1')
 	docx = nlp(my_text)
 	ent_viz = displacy.render([docx], style="ent", page=False)
 	html = ent_viz.replace("\n", " ")
 	return html
 @st.cache
 def dep_analyzer(my_text):
-	nlp = load_model('../Research/models1')
+	nlp = load_model('models1')
 	docx = nlp(my_text)
 	ent_viz = displacy.render([docx], style="dep", page=False)
 	html = ent_viz.replace("\n", " ")
@@ -91,5 +92,10 @@ if st.checkbox("Patrones de sintaxis"):
 	if st.button("Extraer"):
 		st.write('Espere mientras tanto')
 		spatronesintax(df)
-
+if st.checkbox("Mapa"):
+	df3=pd.read_excel('Plazuelas.xlsx')
+	fig = px.scatter_mapbox(df3, lat="lat", lon="lon", hover_name="Plazuelas",hover_data=['Lugar actual'],
+                        color_discrete_sequence=["red"], zoom=3, height=300)
+	fig.update_layout(mapbox_style="open-street-map")
+	st.plotly_chart(fig)
 	
