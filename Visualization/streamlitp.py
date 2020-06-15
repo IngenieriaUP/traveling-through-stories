@@ -95,7 +95,7 @@ if st.checkbox("Patrones de sintaxis"):
 if st.checkbox("Mapa"):
 	df3=pd.read_excel('Plazuelas.xlsx')
 	fig = px.scatter_mapbox(df3, lat="lat", lon="lon", hover_name="Plazuelas",hover_data=['Lugar actual'],
-                        color_discrete_sequence=["red"], zoom=3, height=300)
+                        color_discrete_sequence=["red"], zoom=12, height=300)
 	fig.update_layout(mapbox_style="open-street-map")
 	st.plotly_chart(fig)
 	
