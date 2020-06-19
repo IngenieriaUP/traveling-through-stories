@@ -1,5 +1,7 @@
 import streamlit as st
+import visualise_spacy_tree
 import re
+from nltk.tokenize import sent_tokenize
 import spacy
 from spacy import displacy
 import pandas as pd
@@ -11,20 +13,42 @@ from sumy.summarizers.text_rank import TextRankSummarizer
 from sumy.nlp.stemmers import Stemmer
 from codsyntax import *
 import plotly.express as px
+from spacy.tokens import Token
+#funcion para dar color a los nodos
+def darcolor(doc):
+	try:
+		Token.set_extension('plot', default={})
+	except:
+		pass
+	for token in doc:
+		node_label = '{0} [{1}] /{2})'.format(token.orth_, token.i, token.pos_)
+		token._.plot['label'] = node_label
+		if token.pos_ == 'VERB':
+			token._.plot['color'] = 'green'
+		elif token.pos_=='PROPN':
+			token._.plot['color']='red'
+		elif token.pos_=='NOUN':
+			token._.plot['color']='blue'
+	return doc
+
 HTML_WRAPPER = """<div style="overflow-x: auto; border: 1px solid #e6e9ef; border-radius: 0.25rem; padding: 1rem; margin-bottom: 2.5rem">{}</div>"""
 LANGUAGE = "spanish"
 SENTENCES_COUNT = 3
+#leer archivo
 df=pd.read_excel('Relatos_Benvenutto.xlsx')
 dfvacio=df['Texto']
 libro='Relatos_Benvenutto'
+#lista de capitulos
 @st.cache
 def listar(df):
 	cap=list(set(df['Capitulo'].tolist()))
 	return cap
-st.title('Prueba')
+st.title('TextRider')
 cap=listar(df)
-chapter=st.sidebar.selectbox('Capitulo',cap)
+#seleccion de capitulos
+chapter=st.sidebar.selectbox('Capítulo',cap)
 @st.cache
+#indices de los parrafos
 def indices(chapter):
 	nparrafos=df[df['Capitulo']==chapter].count()
 	nparrafos=nparrafos[0]
@@ -32,8 +56,10 @@ def indices(chapter):
 	for i in range(nparrafos):
 		listaindi.append(str(i+1))
 	return listaindi
-parafos=st.sidebar.multiselect('Parrafo',indices(chapter))
+#seleccion de parrafos
+parafos=st.sidebar.multiselect('Párrafo',indices(chapter))
 @st.cache
+#cargar parrafo seleccionado
 def uptextarea(parafos,df,chapter):
 	dfparte=df[df['Capitulo']==chapter]
 	dfparte=dfparte['Texto'].tolist()
@@ -42,13 +68,29 @@ def uptextarea(parafos,df,chapter):
 		temp=temp+'\n'+dfparte[int(i)-1]+'.'
 	temp=temp.strip()
 	return temp
-my_text=st.text_area('Text a analizar',uptextarea(parafos,df,chapter))
-
+mrparrafo=uptextarea(parafos,df,chapter)
+@st.cache
+#juntar oraciones seleccionadas
+def oraciones(oraci6,indices):
+	temp=''
+	for i in indices:
+		temp=temp+' '+oraci6[int(i)]
+	temp=temp.strip()
+	return temp	
+#si quiere seleccionar por oraciones
+if st.sidebar.checkbox("Selección por oraciones"):
+	oraci6=sent_tokenize(mrparrafo)
+	indiceoraciones=list(range(len(oraci6)))
+	oracionselec=st.sidebar.multiselect('oraciones',indiceoraciones)
+	my_text=st.text_area('Texto a analizar',oraciones(oraci6,oracionselec))
+else:
+	my_text=st.text_area('Texto a analizar',mrparrafo)
+#cargar el modelo
 @st.cache(allow_output_mutation=True)
 def load_model(name):
     nlp=spacy.load(name)
     return nlp
-
+#funcion de entidades
 @st.cache
 def entity_analyzer(my_text):
 	nlp = load_model('models1')
@@ -56,15 +98,18 @@ def entity_analyzer(my_text):
 	ent_viz = displacy.render([docx], style="ent", page=False)
 	html = ent_viz.replace("\n", " ")
 	return html
+#funcion de dependecias-arbol
 @st.cache
 def dep_analyzer(my_text):
 	nlp = load_model('models1')
 	docx = nlp(my_text)
-	ent_viz = displacy.render([docx], style="dep", page=False)
-	html = ent_viz.replace("\n", " ")
-	return html
+	docx=darcolor(docx)
+	png = visualise_spacy_tree.create_png(docx)
+	return png
+#seccion entidades
 if st.checkbox("Reconocimiento de entidades"):
-	if st.button("Analyze"):
+	#mostrar las entidades en el texto
+	if st.button("Analizar"):
 		html=entity_analyzer(my_text)
 		st.write(HTML_WRAPPER.format(html), unsafe_allow_html=True)
 def summarize(my_text):
@@ -86,16 +131,17 @@ if st.checkbox("Patrones de sintaxis"):
 		if muestra!='':
 			df2=pd.read_excel('pospattern.xlsx')
 			st.write(df2.head(int(muestra)))
-	if st.checkbox("Grafico"):
+	if st.checkbox("Gráfico"):
 		html=dep_analyzer(my_text)
-		st.write(HTML_WRAPPER.format(html), unsafe_allow_html=True)
+		st.image(html,format='PNG')
 	if st.button("Extraer"):
 		st.write('Espere mientras tanto')
 		spatronesintax(df)
 if st.checkbox("Mapa"):
 	df3=pd.read_excel('Plazuelas.xlsx')
+	listazero=[10]*len(df3)
 	fig = px.scatter_mapbox(df3, lat="lat", lon="lon", hover_name="Plazuelas",hover_data=['Lugar actual'],
-                        color_discrete_sequence=["red"], zoom=3, height=300)
+                        color_discrete_sequence=["red"], zoom=12, height=400, size=listazero)
 	fig.update_layout(mapbox_style="open-street-map")
 	st.plotly_chart(fig)
 	
