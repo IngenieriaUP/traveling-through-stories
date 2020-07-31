@@ -138,6 +138,7 @@ if st.checkbox('Análisis micro'):
 			st.markdown('No se encontró entidades')
 		else:
 			st.write(html, unsafe_allow_html=True)
+	#Arbol de sintaxis
 	st.header("Árbol de sintaxis")
 	if st.checkbox("Gráfico"):
 		html=dep_analyzer(my_text)
