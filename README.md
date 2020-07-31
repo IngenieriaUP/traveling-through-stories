@@ -1,4 +1,4 @@
-# RideR: A Text Analysis Platform
+# A Text Analysis App
 
 This platform objective is to deliver in a easy-to-use interface classical NLP techniques such as:
 
