@@ -5,3 +5,4 @@ spacy
 pandas
 plotly
 pydot
+unidecode
