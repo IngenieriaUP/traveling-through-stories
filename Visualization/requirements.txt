@@ -1,5 +1,5 @@
 streamlit
-visualise_spacy_tree
+visualise-spacy-tree
 re
 nltk
 spacy
