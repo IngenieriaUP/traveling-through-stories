@@ -1,7 +1,0 @@
-streamlit
-visualise-spacy-tree
-nltk
-spacy
-pandas
-plotly
-pydot
