@@ -1,6 +1,7 @@
 import streamlit as st
 import visualise_spacy_tree
 import re
+import nltk
 from nltk.tokenize import sent_tokenize
 import spacy
 from spacy import displacy
