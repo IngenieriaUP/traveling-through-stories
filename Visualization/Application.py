@@ -8,6 +8,13 @@ import pandas as pd
 from codsyntax import *
 import plotly.express as px
 from spacy.tokens import Token
+
+# Verifica si punkt esta instalado
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
 #funcion para dar color a los nodos
 def darcolor(doc):
 	try:
