@@ -1,0 +1,7 @@
+streamlit
+visualise-spacy-tree
+re
+nltk
+spacy
+pandas
+plotly
