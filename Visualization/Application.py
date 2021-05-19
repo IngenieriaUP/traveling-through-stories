@@ -1,7 +1,6 @@
 import streamlit as st
 import visualise_spacy_tree
 import re
-import nltk
 from nltk.tokenize import sent_tokenize
 import spacy
 from spacy import displacy
@@ -9,13 +8,6 @@ import pandas as pd
 from codsyntax import *
 import plotly.express as px
 from spacy.tokens import Token
-
-# Verifica si punkt esta instalado
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:
-    nltk.download('punkt')
-
 #funcion para dar color a los nodos
 def darcolor(doc):
 	try:
@@ -37,11 +29,11 @@ def darcolor(doc):
 def load_model(name):
     nlp=spacy.load(name)
     return nlp
-nlp = load_model('Visualization/models1')
+nlp = load_model('models1')
 HTML_WRAPPER = """<div style="overflow-x: auto; border: 1px solid #e6e9ef; border-radius: 0.25rem; padding: 1rem; margin-bottom: 2.5rem">{}</div>"""
 LANGUAGE = "spanish"
 #leer archivo
-df=pd.read_csv('Visualization/Relatos_Benvenutto.csv',sep='\t')
+df=pd.read_csv('Relatos_Benvenutto.csv',sep='\t')
 dfvacio=df['Texto']
 libro='Relatos_Benvenutto'
 #lista de capitulos
@@ -58,7 +50,7 @@ if st.sidebar.checkbox('Ver más'):
 #Check Macro
 if st.checkbox('Análisis macro'):
 	st.header("Mapa")
-	df3=pd.read_excel('Visualization/Plazuelas.xlsx')
+	df3=pd.read_excel('Plazuelas.xlsx')
 	listazero=[10]*len(df3)
 	fig = px.scatter_mapbox(df3, lat="lat", lon="lon", hover_name="Plazuelas",hover_data=['Lugar actual'],
                         color_discrete_sequence=["red"], zoom=12, height=500, size=listazero)        

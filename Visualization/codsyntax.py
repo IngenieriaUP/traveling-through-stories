@@ -1,5 +1,5 @@
 import spacy
-nlp=spacy.load('Visualization/models1')
+nlp=spacy.load('models1')
 from nltk.tokenize import sent_tokenize
 import unidecode
 import pandas as pd
