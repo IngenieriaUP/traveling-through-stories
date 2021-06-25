@@ -1,3 +1,9 @@
+try:
+	jhdffkjhgdf
+except Exception as e:
+	import sys
+	raise NameError(sys.version_info)
+
 import spacy
 nlp = spacy.load('models1')
 from nltk.tokenize import sent_tokenize
