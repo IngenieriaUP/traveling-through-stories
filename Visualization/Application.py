@@ -8,6 +8,7 @@ import pandas as pd
 from codsyntax import *
 import plotly.express as px
 from spacy.tokens import Token
+
 #funcion para dar color a los nodos
 def darcolor(doc):
 	try:
@@ -142,7 +143,7 @@ if st.checkbox('Análisis micro'):
 	st.header("Árbol de sintaxis")
 	if st.checkbox("Gráfico"):
 		html=dep_analyzer(my_text)
-		st.image(html,format='PNG')
+		st.image(html, output_format='PNG')
 		
 
 	
