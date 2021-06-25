@@ -9,6 +9,9 @@ from codsyntax import *
 import plotly.express as px
 from spacy.tokens import Token
 
+import sys
+print(sys.info)
+
 #funcion para dar color a los nodos
 def darcolor(doc):
 	try:
